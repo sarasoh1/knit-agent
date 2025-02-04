@@ -1,0 +1,14 @@
+raglan
+sweater
+cardigan
+hoodie
+shawl
+scarf
+beanie
+hat
+top
+dress
+skirt
+pants
+shorts
+
