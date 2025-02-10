@@ -5,7 +5,7 @@ from typing import List, Dict
 import boto3
 from dotenv import load_dotenv
 from urllib.parse import quote
-from utils.preprocess import preprocess_pattern
+from utils.preprocess import preprocess_pattern, check_pattern_url_is_active
 from models.pattern import Pattern
 from db.cache import compute_hash, data_has_changed, update_database
 from db.sqlite import init_db
@@ -60,11 +60,12 @@ async def fetch_patterns(client: httpx.AsyncClient, page: int, query: str) -> Li
                     pattern_hash = compute_hash(pattern_json)
                     if data_has_changed(pattern_json["permalink"], pattern_hash):
                         cleaned_pattern = Pattern(**preprocess_pattern(pattern_json))
-                        save_json_to_s3(cleaned_pattern.model_dump(), cleaned_pattern.permalink)
                         extension, file_url = cleaned_pattern.retrieve_pattern_url()
-                        save_file_to_s3(file_url, extension, cleaned_pattern.permalink)
-                        update_database(cleaned_pattern.permalink, pattern_hash)
-                        patterns.append(cleaned_pattern)
+                        update_database(cleaned_pattern.permalink, pattern_hash) # Update the database so that we won't scrape the same pattern again
+                        if check_pattern_url_is_active(file_url):
+                            save_json_to_s3(cleaned_pattern.model_dump(), cleaned_pattern.permalink)
+                            save_file_to_s3(file_url, extension, cleaned_pattern.permalink)
+                            patterns.append(cleaned_pattern)
                 except Exception as e:
                     print(f"Error processing pattern {pattern_json['permalink']}: {e}")
 
@@ -97,7 +98,7 @@ async def fetch_all_patterns(max_pages: int) -> List[Dict]:
                     results = await asyncio.gather(*tasks)
                     patterns.extend([p for result in results for p in result])
                     tasks = []
-                    await asyncio.sleep(1)  # Respect rate limits
+                    await asyncio.sleep(2)  # Respect rate limits
 
             # Fetch any remaining tasks for this category
             if tasks:

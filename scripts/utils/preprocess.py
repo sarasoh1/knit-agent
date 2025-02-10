@@ -1,4 +1,5 @@
-# from typing import List
+import re
+import requests
 from models.helpers.pattern_needle_size import PatternNeedleSize
 
 def preprocess_pattern_needle_sizes(pattern_needle_sizes: dict) -> PatternNeedleSize:
@@ -69,4 +70,26 @@ def preprocess_pattern(pattern: dict) -> dict:
     pattern_dict["pattern_categories"] = pattern.get("pattern_categories")
     
     return pattern_dict
+
+def check_pattern_url_is_active(pattern_url: str) -> bool:
+    """
+    Check if the pattern url is active
+    Args:
+        pattern_url (str): The url of the pattern
+
+    Returns:
+        bool: True if the pattern url is active, False otherwise
+    """
+    response = requests.get(pattern_url, timeout=20)
+    js_redirect_pattern = re.search(r'window\.location\.href\s*=\s*["\'](.*?)["\']', response.text)
+
+    if js_redirect_pattern:
+        redirect_path = js_redirect_pattern.group(1)
+        print(f"Detected JavaScript redirect to: {redirect_path}")
+
+        # If it's redirecting to a suspicious path like "/lander", consider it inactive
+        if "/lander" in redirect_path or "godaddy.com" in redirect_path:
+            return False
+    
+    return True
 

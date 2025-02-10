@@ -36,7 +36,7 @@ class Pattern(BaseModel):
                 soup = BeautifulSoup(link_response.text, 'html.parser')
                 # Try to find a pdf file link
                 links = soup.find_all('a', attrs={
-                    "href": re.compile(r"^https:\/\/cdn.*\.pdf")
+                    "href": re.compile(r"^https:\/\/cdn.*\.pdf", re.IGNORECASE)
                 })
 
                 if not links or len(links) == 0:
@@ -46,7 +46,7 @@ class Pattern(BaseModel):
         else:
             response = requests.get(self.download_location.url, timeout=20)
             soup = BeautifulSoup(response.text, 'html.parser')
-            links = soup.find_all('a', attrs={"href": re.compile(r"^https:\/\/.*\.pdf")})
+            links = soup.find_all('a', attrs={"href": re.compile(r"^https:\/\/.*\.pdf", re.IGNORECASE)})
 
             if not links or len(links) == 0:
                 return "pdf", self.download_location.url
