@@ -1,5 +1,6 @@
 from pydantic import BaseModel
 
+
 class DownloadLocation(BaseModel):
     type: str
     free: bool
@@ -10,7 +11,7 @@ class DownloadLocation(BaseModel):
         Check if the download location is external
         """
         return True if self.type == "ravelry" else False
-    
+
     def is_url_file(self) -> bool:
         """
         Check if the download location is a file

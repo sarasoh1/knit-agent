@@ -1,6 +1,7 @@
 from typing import Optional
 from pydantic import BaseModel
 
+
 class Ratings(BaseModel):
     rating_average: Optional[float]
     rating_count: Optional[int]

@@ -1,6 +1,7 @@
 # Initialize database
 import sqlite3
 
+
 def init_db():
     conn = sqlite3.connect("db/scraper.db")
     cursor = conn.cursor()
@@ -13,4 +14,3 @@ def init_db():
     )
     conn.commit()
     conn.close()
-

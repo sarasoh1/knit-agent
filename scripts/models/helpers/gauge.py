@@ -2,6 +2,7 @@ from typing import Optional, List
 from pydantic import BaseModel
 from models.helpers.pattern_needle_size import PatternNeedleSize
 
+
 class Gauge(BaseModel):
     gauge: Optional[float]
     gauge_divisor: Optional[int]
@@ -14,4 +15,4 @@ class Gauge(BaseModel):
     yardage_description: Optional[str]
     pattern_needle_sizes: Optional[List[PatternNeedleSize]]
 
-    #TODO: Add validation for gauges
+    # TODO: Add validation for gauges

@@ -8,10 +8,12 @@ from models.helpers.gauge import Gauge
 from models.helpers.ratings import Ratings
 from models.helpers.pattern_features import PatternAttribute, PatternCategories
 
+
 class Pattern(BaseModel):
     """
     A pattern is a JSON response from Ravelry's API
     """
+
     id: int
     name: str
     permalink: str
@@ -33,11 +35,12 @@ class Pattern(BaseModel):
                 return "pdf", self.download_location.url
             else:
                 link_response = requests.get(self.download_location.url, timeout=20)
-                soup = BeautifulSoup(link_response.text, 'html.parser')
+                soup = BeautifulSoup(link_response.text, "html.parser")
                 # Try to find a pdf file link
-                links = soup.find_all('a', attrs={
-                    "href": re.compile(r"^https:\/\/cdn.*\.pdf", re.IGNORECASE)
-                })
+                links = soup.find_all(
+                    "a",
+                    attrs={"href": re.compile(r"^https:\/\/cdn.*\.pdf", re.IGNORECASE)},
+                )
 
                 if not links or len(links) == 0:
                     return "html", self.download_location.url
@@ -45,11 +48,12 @@ class Pattern(BaseModel):
                     return "pdf", links[0].get("href")
         else:
             response = requests.get(self.download_location.url, timeout=20)
-            soup = BeautifulSoup(response.text, 'html.parser')
-            links = soup.find_all('a', attrs={"href": re.compile(r"^https:\/\/.*\.pdf", re.IGNORECASE)})
+            soup = BeautifulSoup(response.text, "html.parser")
+            links = soup.find_all(
+                "a", attrs={"href": re.compile(r"^https:\/\/.*\.pdf", re.IGNORECASE)}
+            )
 
             if not links or len(links) == 0:
                 return "pdf", self.download_location.url
             else:
                 return "pdf", links[0].get("href")
-                    
