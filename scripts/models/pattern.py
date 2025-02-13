@@ -49,9 +49,14 @@ class Pattern(BaseModel):
         else:
             response = requests.get(self.download_location.url, timeout=20)
             soup = BeautifulSoup(response.text, "html.parser")
+            # print("soup:", soup)
             links = soup.find_all(
                 "a", attrs={"href": re.compile(r"^https:\/\/.*\.pdf", re.IGNORECASE)}
             )
+            links2 = soup.find_all(
+                "a", attrs={"href": re.compile(r"^http:\/\/.*\.pdf", re.IGNORECASE)}
+            )
+            links = links + links2
 
             if not links or len(links) == 0:
                 return "pdf", self.download_location.url

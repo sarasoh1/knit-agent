@@ -61,6 +61,7 @@ async def fetch_patterns(
             )
             pattern_response.raise_for_status()
             pattern_json = pattern_response.json()["pattern"]
+            print(pattern_json)
             available_languages = [
                 language["code"] for language in pattern_json["languages"]
             ]

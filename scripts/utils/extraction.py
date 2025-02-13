@@ -18,7 +18,7 @@ s3_client = boto3.client(
     region_name=os.getenv("AWS_REGION"),
 )
 
-llamaparse = LlamaParse(api_key=os.getenv("LLAMAINDEX_API_KEY"), segment_sentences=True)
+llamaparse = LlamaParse(api_key=os.getenv("LLAMAINDEX_API_KEY2"), segment_sentences=True)
 s3_fs = S3FileSystem(anon=False, endpoint_url=None)
 
 

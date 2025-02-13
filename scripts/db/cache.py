@@ -1,7 +1,7 @@
 import sqlite3
 import hashlib
 import json
-from datetime import datetime, timezone
+from datetime import date
 
 
 # Function to hash API response
@@ -58,8 +58,22 @@ def update_database(item_permalink: str, new_hash: str):
         VALUES (?, ?, ?) 
         ON CONFLICT(id) DO UPDATE 
         SET hash = excluded.hash, last_checked = excluded.last_checked""",
-        (item_permalink, new_hash, datetime.now(timezone.utc).isoformat()),
+        (item_permalink, new_hash, date.today()),
     )
 
     conn.commit()
     conn.close()
+
+def fetch_latest_processed_patterns():
+    """
+    Fetch the latest processed patterns from the database
+    """
+    conn = sqlite3.connect("db/scraper.db")
+    cursor = conn.cursor()
+    cursor.execute("SELECT distinct last_checked FROM scraped_patterns order by last_checked desc")
+    latest_date = cursor.fetchone()[0]
+    print(latest_date)
+    cursor.execute(f"select id from scraped_patterns where last_checked >= {latest_date}")
+    processed_patterns = [row[0] for row in cursor.fetchall()]
+    conn.close()
+    return processed_patterns

@@ -5,7 +5,7 @@ import boto3
 from dotenv import load_dotenv
 import nest_asyncio
 from utils.extraction import process_pdfs_batch, process_html_file
-
+from db.cache import fetch_latest_processed_patterns
 nest_asyncio.apply()
 
 load_dotenv()
@@ -24,25 +24,27 @@ async def process_all_patterns():
     """
     # List all pattern folders
     prefix = "raw/ravelry/"
-    all_files = s3_client.list_objects_v2(
-        Bucket=os.getenv("AWS_BUCKET_NAME"), Prefix=prefix
-    )
+
+   #TODO: Want to only process new patterns, not all of them
+    # Get the latest processed patterns from the database
+    latest_processed_patterns = fetch_latest_processed_patterns()
 
     # Separate PDFs and HTMLs by permalink
     pdf_permalinks = []
     html_permalinks = []
 
-    for obj in all_files.get("Contents", []):
-        file_key = obj.get("Key")
-        extension = file_key.split(".")[-1]
-        permalink = file_key.split("/")[-2]
+    for permalink in latest_processed_patterns:
+        # file_key = key.get("Key")
+        file_key = s3_client.list_objects_v2(Bucket=os.getenv("AWS_BUCKET_NAME"), Prefix=f"{prefix}{permalink}")
+        for obj in file_key.get("Contents", []):
+            extension = obj.get("Key").split(".")[-1]
 
-        if extension == "json":
-            continue
-        elif extension == "pdf":
-            pdf_permalinks.append(permalink)
-        elif extension == "html":
-            html_permalinks.append(permalink)
+            if extension == "json":
+                continue
+            elif extension == "pdf":
+                pdf_permalinks.append(permalink)
+            elif extension == "html":
+                html_permalinks.append(permalink)
 
     print(
         f"Found {len(pdf_permalinks)} PDFs and {len(html_permalinks)} HTMLs to process"
