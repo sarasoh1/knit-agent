@@ -3,6 +3,7 @@ from pydantic import BaseModel
 from models.helpers.pattern_needle_size import PatternNeedleSize
 from models.helpers.yarn_weights import YarnWeights
 
+
 class Gauge(BaseModel):
     gauge: Optional[float]
     gauge_divisor: Optional[int]
@@ -26,9 +27,9 @@ class Gauge(BaseModel):
         yarn_weight = self.yarn_weight_description.lower()
         if "light fingering" in yarn_weight:
             return YarnWeights.FINE
-        
+
         if "super bulky" in yarn_weight:
             return YarnWeights.SUPER_BULKY
-        
+
         clean_yarn_weight = yarn_weight.split(" ")[0]
         return YarnWeights.get_group(clean_yarn_weight)

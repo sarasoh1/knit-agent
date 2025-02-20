@@ -14,18 +14,16 @@ def init_qdrant():
     )
 
     try:
-        qdrant_client.delete_collection(collection_name="patterns")
+        # Create new collection with correct vector size (1536 for OpenAI embeddings)
+        qdrant_client.create_collection(
+            collection_name="patterns",
+            vectors_config=VectorParams(
+                size=1536,  # Updated to match your embedding dimension
+                distance=Distance.COSINE,
+            ),
+        )
     except Exception:
-        print("collection not found")
-
-    # Create new collection with correct vector size (1536 for OpenAI embeddings)
-    qdrant_client.create_collection(
-        collection_name="patterns",
-        vectors_config=VectorParams(
-            size=1536,  # Updated to match your embedding dimension
-            distance=Distance.COSINE,
-        ),
-    )
+        print("collection already created!")
 
     return qdrant_client
 

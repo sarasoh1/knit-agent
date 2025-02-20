@@ -1,5 +1,6 @@
 from enum import Enum
 
+
 class YarnWeights(Enum):
     FINE = frozenset({"fingering", "light-fingering", "sock", "lace"})
     LIGHT = frozenset({"sport", "baby", "dk"})
@@ -13,4 +14,3 @@ class YarnWeights(Enum):
             if value in group.value:
                 return group.name
         return None
-    
