@@ -21,7 +21,7 @@ def compute_hash(data: dict):
 # Check if data has changed
 def data_has_changed(item_permalink, new_hash):
     """
-    Check if the data has changed
+    Check if the data has changed or if data is new
 
     Args:
         item_id (str): the id of the pattern

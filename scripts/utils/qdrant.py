@@ -4,9 +4,6 @@ from dotenv import load_dotenv
 from qdrant_client import QdrantClient
 from qdrant_client.models import VectorParams, Distance, PointStruct
 
-load_dotenv()
-# TODO: Write a qdrant client that can be used by other scripts
-
 
 def init_qdrant():
     qdrant_client = QdrantClient(

@@ -61,30 +61,39 @@ async def fetch_patterns(
             )
             pattern_response.raise_for_status()
             pattern_json = pattern_response.json()["pattern"]
-            print(pattern_json)
             available_languages = [
                 language["code"] for language in pattern_json["languages"]
             ]
 
             if pattern_json["free"] and "en" in available_languages:
-                try:
-                    pattern_hash = compute_hash(pattern_json)
-                    if data_has_changed(pattern_json["permalink"], pattern_hash):
-                        cleaned_pattern = Pattern(**preprocess_pattern(pattern_json))
-                        extension, file_url = cleaned_pattern.retrieve_pattern_url()
-                        update_database(
-                            cleaned_pattern.permalink, pattern_hash
-                        )  # Update the database so that we won't scrape the same pattern again
-                        if check_pattern_url_is_active(file_url):
-                            save_json_to_s3(
-                                cleaned_pattern.model_dump(), cleaned_pattern.permalink
+                if (
+                    pattern_json["download_location"]
+                    and pattern_json["download_location"]["type"] == "ravelry"
+                    and pattern_json["download_location"]["free"]
+                ):
+                    try:
+                        pattern_hash = compute_hash(pattern_json)
+                        if data_has_changed(pattern_json["permalink"], pattern_hash):
+                            cleaned_pattern = Pattern(
+                                **preprocess_pattern(pattern_json)
                             )
-                            save_file_to_s3(
-                                file_url, extension, cleaned_pattern.permalink
-                            )
-                            patterns.append(cleaned_pattern)
-                except Exception as e:
-                    print(f"Error processing pattern {pattern_json['permalink']}: {e}")
+                            extension, file_url = cleaned_pattern.retrieve_pattern_url()
+                            update_database(
+                                cleaned_pattern.permalink, pattern_hash
+                            )  # Update the database so that we won't scrape the same pattern again
+                            if check_pattern_url_is_active(file_url):
+                                save_json_to_s3(
+                                    cleaned_pattern.model_dump(),
+                                    cleaned_pattern.permalink,
+                                )
+                                save_file_to_s3(
+                                    file_url, extension, cleaned_pattern.permalink
+                                )
+                                patterns.append(cleaned_pattern)
+                    except Exception as e:
+                        print(
+                            f"Error processing pattern {pattern_json['permalink']}: {e}"
+                        )
 
         return patterns
 
